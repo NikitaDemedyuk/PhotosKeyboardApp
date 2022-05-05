@@ -111,10 +111,18 @@ class _HomeWidgetState extends State<HomeWidget> {
     }
   }
 
-  void onImageRemoved(String id) {}
+  void onImageRemoved(String id) {
+    setState(() => selectedImages.remove(id));
+  }
 
-  void onImageTap(String id) {}
-
+  void onImageTap(String id) {
+    setState(() => selectedImages.add(id));
+    WidgetsBinding.instance?.addPostFrameCallback((_) {
+      final pos = selectedImagesController.position.maxScrollExtent;
+      selectedImagesController.jumpTo(pos);
+    });
+  }
+  
   void getAllPhotos() async {
     // 1
     gridHeight = getKeyboardHeight();
