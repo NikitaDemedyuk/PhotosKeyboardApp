@@ -100,12 +100,36 @@ class _HomeWidgetState extends State<HomeWidget> {
     );
   }
 
-  void togglePhotos() {}
+  void togglePhotos() {
+    if (showGrid) {
+      setState(() {
+        showGrid = false;
+        focus.requestFocus();
+      });
+    } else {
+      getAllPhotos();
+    }
+  }
 
   void onImageRemoved(String id) {}
 
   void onImageTap(String id) {}
 
+  void getAllPhotos() async {
+    // 1
+    gridHeight = getKeyboardHeight();
+    // 2
+    final results = await methodChannel.invokeMethod<List>('getPhotos', 1000);
+    if (results != null && results.isNotEmpty) {
+      setState(() {
+        images = results.cast<String>();
+        // 3
+        showGrid = images.isNotEmpty;
+        // 4
+        focus.unfocus();
+      });
+    }
+  }
 
   double getKeyboardHeight() {
     return MediaQuery.of(context).viewInsets.bottom;

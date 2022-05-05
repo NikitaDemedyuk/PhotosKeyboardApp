@@ -116,6 +116,8 @@ import Photos
                 self?.fetchLimit = call.arguments as! Int
                 self?.flutterResult = result
                 self?.getPhotos()
+            case "fetchImage":
+                self?.fetchImage(args: call.arguments as? Dictionary<String, Any>, result: result)
             default:
                 // 4
                 result(FlutterMethodNotImplemented)
