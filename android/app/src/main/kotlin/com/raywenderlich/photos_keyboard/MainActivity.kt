@@ -29,6 +29,51 @@
 package com.raywenderlich.photos_keyboard
 
 import io.flutter.embedding.android.FlutterFragmentActivity
+import android.Manifest
+import android.content.ContentResolver
+import android.content.ContentUris
+import android.content.pm.PackageManager
+import android.database.Cursor
+import android.net.Uri
+import android.os.Build
+import android.os.Bundle
+import android.provider.MediaStore
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.content.ContextCompat
+import androidx.lifecycle.lifecycleScope
+import com.bumptech.glide.Glide
+import io.flutter.embedding.engine.FlutterEngine
+import io.flutter.plugin.common.MethodChannel
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
-class MainActivity : FlutterFragmentActivity()
+class MainActivity : FlutterFragmentActivity() {
+    private var methodResult: MethodChannel.Result? = null
+    private var queryLimit: Int = 0
 
+    override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
+        super.configureFlutterEngine(flutterEngine)
+        val messenger = flutterEngine.dartExecutor.binaryMessenger
+        MethodChannel(messenger, "com.raywenderlich.photos_keyboard")
+                .setMethodCallHandler { call, result ->
+                    when (call.method) {
+                        "getPhotos" -> {
+                            methodResult = result
+                            queryLimit = call.arguments()
+                            getPhotos()
+                        }
+                        "fetchImage" -> fetchImage(call.arguments(), result)
+                        else -> result.notImplemented()
+                    }
+                }
+    }
+
+    private fun getPhotos() {
+        TODO("Not yet implemented")
+    }
+
+    private fun fetchImage(args: Map<String, Any>, result: MethodChannel.Result) {
+        TODO("Not yet implemented")
+    }
+
+}
