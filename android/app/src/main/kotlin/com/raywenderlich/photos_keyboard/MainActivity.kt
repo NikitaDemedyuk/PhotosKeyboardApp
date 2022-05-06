@@ -68,8 +68,47 @@ class MainActivity : FlutterFragmentActivity() {
                 }
     }
 
+    private fun getCursor(limit: Int): Cursor? {
+        //1
+        val uri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI
+        val projection = arrayOf(MediaStore.Images.Media._ID)
+
+        //2
+        return if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
+            val sort = "${MediaStore.Images.ImageColumns.DATE_MODIFIED} DESC LIMIT $limit"
+            contentResolver.query(uri, projection, null, null, sort)
+        } else {
+            //3
+            val args = Bundle().apply {
+                putInt(ContentResolver.QUERY_ARG_LIMIT, limit)
+                putStringArray(
+                        ContentResolver.QUERY_ARG_SORT_COLUMNS,
+                        arrayOf(MediaStore.Images.ImageColumns.DATE_MODIFIED)
+                )
+                putInt(
+                        ContentResolver.QUERY_ARG_SORT_DIRECTION,
+                        ContentResolver.QUERY_SORT_DIRECTION_DESCENDING
+                )
+            }
+            contentResolver.query(uri, projection, args, null)
+        }
+    }
+
     private fun getPhotos() {
-        TODO("Not yet implemented")
+        if (queryLimit == 0 || !hasStoragePermission()) return
+
+        lifecycleScope.launch(Dispatchers.IO) {
+            val ids = mutableListOf<String>()
+            val cursor = getCursor(queryLimit)
+            cursor?.use {
+                while (cursor.moveToNext()) {
+                    val columnIndex = cursor.getColumnIndexOrThrow(MediaStore.Images.Media._ID)
+                    val long = cursor.getLong(columnIndex)
+                    ids.add(long.toString())
+                }
+            }
+            methodResult?.success(ids)
+        }
     }
 
     private fun fetchImage(args: Map<String, Any>, result: MethodChannel.Result) {
