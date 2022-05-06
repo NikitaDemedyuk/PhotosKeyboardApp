@@ -94,6 +94,20 @@ class MainActivity : FlutterFragmentActivity() {
         }
     }
 
+    private fun getImageBytes(uri: Uri?, width: Int, height: Int, onComplete: (ByteArray) -> Unit) {
+        lifecycleScope.launch(Dispatchers.IO) {
+            try {
+                val r = Glide.with(this@MainActivity)
+                        .`as`(ByteArray::class.java)
+                        .load(uri)
+                        .submit(width, height).get()
+                onComplete(r)
+            } catch (t: Throwable) {
+                onComplete(byteArrayOf())
+            }
+        }
+    }
+
     private fun getPhotos() {
         if (queryLimit == 0 || !hasStoragePermission()) return
 
@@ -112,7 +126,16 @@ class MainActivity : FlutterFragmentActivity() {
     }
 
     private fun fetchImage(args: Map<String, Any>, result: MethodChannel.Result) {
-        TODO("Not yet implemented")
+        // 1
+        val id = (args["id"] as String).toLong()
+        val width = (args["width"] as Double).toInt()
+        val height = (args["height"] as Double).toInt()
+
+        // 2
+        val uri = ContentUris.withAppendedId(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, id)
+        getImageBytes(uri, width, height) {
+            result.success(it)
+        }
     }
 
     private val permissionLauncher =
