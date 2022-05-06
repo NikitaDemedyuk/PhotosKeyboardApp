@@ -76,4 +76,24 @@ class MainActivity : FlutterFragmentActivity() {
         TODO("Not yet implemented")
     }
 
+    private val permissionLauncher =
+            registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
+                if (granted) {
+                    getPhotos()
+                } else {
+                    methodResult?.error("0", "Permission denied", "")
+                }
+            }
+
+    private fun hasStoragePermission(): Boolean {
+        // 1
+        val permission = Manifest.permission.READ_EXTERNAL_STORAGE
+        // 2
+        val state = ContextCompat.checkSelfPermission(this, permission)
+        if (state == PackageManager.PERMISSION_GRANTED) return true
+
+        // 3
+        permissionLauncher.launch(permission)
+        return false
+    }
 }
