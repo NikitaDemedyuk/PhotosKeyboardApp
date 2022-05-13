@@ -1,6 +1,5 @@
 # photos_keyboard
 
-A new Flutter project.
 
 ## Getting Started
 
